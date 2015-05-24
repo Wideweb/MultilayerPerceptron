@@ -12,8 +12,10 @@ namespace MultilayerPerceptron
         public double[] Answer { get; set; }
     }
 
-    interface ITrainingAlgorithm
+    public interface ITrainingAlgorithm
     {
+        event EventHandler<TrainingEventArgs> TrainingEvent;
+
         void Train(MultilayerNeuralNetwork neuralNetwork, List<TrainingSample> trainingSamples);
     }
 }

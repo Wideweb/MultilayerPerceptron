@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
-    class LeastSquareMethod : IProximityMeasure
+    public class LeastSquareMethod : IProximityMeasure
     {
         public double Compute(double[] v1, double[] v2)
         {

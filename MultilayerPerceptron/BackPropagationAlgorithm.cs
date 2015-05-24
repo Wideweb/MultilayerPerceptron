@@ -6,15 +6,20 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
-    class BackPropagationAlgorithm : ITrainingAlgorithm
+    public class BackPropagationAlgorithm : ITrainingAlgorithm
     {
         private IProximityMeasure proximityMeasure;
         private double trainingSpeed;
+        private double alpha;
 
-        public BackPropagationAlgorithm(IProximityMeasure pm)
+        public event EventHandler<TrainingEventArgs> TrainingEvent;
+
+        public BackPropagationAlgorithm(IProximityMeasure pm, double trainingSpeed, double alpha)
         {
             proximityMeasure = pm;
-            trainingSpeed = 0.7;
+            this.trainingSpeed = trainingSpeed;
+            this.alpha = alpha;
+
         }
 
         public void Train(MultilayerNeuralNetwork neuralNetwork, List<TrainingSample> trainingSamples)
@@ -22,7 +27,15 @@ namespace MultilayerPerceptron
             double[] output;
             foreach(var sample in trainingSamples)
             {
-                output = neuralNetwork.ComputeOutput(sample.Sample);    
+                output = neuralNetwork.ComputeOutput(sample.Sample);
+
+                if(TrainingEvent != null)
+                TrainingEvent(this, new TrainingEventArgs{
+                    E = proximityMeasure.Compute(sample.Answer, output)
+                    //E = output[0]
+                });
+
+                SpreadErrorSignals(neuralNetwork, sample.Answer);
             }
         }
 
@@ -32,12 +45,9 @@ namespace MultilayerPerceptron
             List<Layer> layers = neuralNetwork.Layers;
 
             ComputeGradientForOutputNeurons(layers[length - 1], answer);
-            for(var i = length - 2; i > 0; i--)
+            for (var i = length - 2; i > 0; i--)
             {
-                for(var j = 0; j < layers[i].InputDimension; j++)
-                {
-                    ComputeGradientForInnerNeurons(layers[length - 1], answer);
-                }
+                ComputeGradientForInnerNeurons(layers[i], answer);
             }
             CorrectWeights(neuralNetwork);
         }
@@ -53,9 +63,11 @@ namespace MultilayerPerceptron
                 {
                     foreach(var incomingLink in neuron.IncomingLinks)
                     {
-                        incomingLink.Weight -= neuron.dEdS
-                            * trainingSpeed
+                        incomingLink.dw = incomingLink.dw * alpha + (1 - alpha) * neuron.dEdS
                             * incomingLink.Neuron.OUT;
+                        incomingLink.Weight -= incomingLink.dw * trainingSpeed;
+
+                        if (incomingLink.Weight == double.NaN) throw new Exception("Backprop: Nan weight");
                     }
                 }
             }
@@ -70,9 +82,9 @@ namespace MultilayerPerceptron
                 neuron = layer.Neurons[i];
                 function = neuron.ActivationFunction;
 
-                neuron.dEdS = -1
-                    * proximityMeasure.ComputePartialDerivative(layer.LastOutput, answer, i)
-                    * function.ComputeFirstDerivative(neuron.NET);
+                neuron.dEdS = 
+                    proximityMeasure.ComputePartialDerivative(answer, layer.LastOutput, i)
+                    * function.ComputeFirstDerivative(neuron.LastNET);
                     
             }
         }
@@ -86,8 +98,10 @@ namespace MultilayerPerceptron
                 neuron = layer.Neurons[i];
                 function = neuron.ActivationFunction;
 
-                neuron.dEdS = function.ComputeFirstDerivative(neuron.NET) 
-                    * dEdS_forInnerNeuron(neuron);
+                var d = function.ComputeFirstDerivative(neuron.LastNET);
+                var de = dEdS_forInnerNeuron(neuron);
+
+                neuron.dEdS = d * de;
 
             }
         }

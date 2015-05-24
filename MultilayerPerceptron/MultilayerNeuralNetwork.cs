@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
-    class MultilayerNeuralNetwork
+    public class MultilayerNeuralNetwork : INeuralNetwork
     {
         public List<Layer> Layers { get; set; }
         public List<Link> inputLinks { get; set; }
@@ -22,7 +22,7 @@ namespace MultilayerPerceptron
             if (Layers.Count == 0)
                 throw new Exception("MultilayerNeuralNetwork don't has layers");
 
-            if(Layers.Count != inputVector.Length)
+            if(Layers[0].Neurons.Count != inputVector.Length)
                 throw new Exception("Incorrect length of the input vector");
 
             SendSignalToTheFirstLayer(inputVector);
@@ -40,15 +40,15 @@ namespace MultilayerPerceptron
 
         private void ConductSignalOverLayers()
         {
-            foreach(var layer in Layers)
+            for(var i = 0; i < Layers.Count; i++)
             {
-                layer.Activate();
+                Layers[i].Activate();
             }
         }
 
         private double[] ReceiveSignalFormTheLastLayer()
-        {
-            return Layers[Layers.Count].LastOutput;
+        { 
+            return Layers[Layers.Count - 1].LastOutput;
         }
     }
 }

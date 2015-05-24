@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
-    class Layer
+    public class Layer
     {
         public double[] LastOutput { get; set; }
         public int InputDimension { get; set; }
         public List<INeuron> Neurons { get; set; }
 
-        public Layer(int length, IFunction activationFunction)
+        public Layer(int length, IFunction activationFunction, double threshold = 0)
         {
             InputDimension = length;
 
             Neurons = new List<INeuron>();
             for (var i = 0; i < length; i++)
             {
-                Neurons.Add(new Neuron(activationFunction));
+                Neurons.Add(new Neuron(activationFunction, threshold));
             }
         }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
-    class NonFunction : IFunction
+    public class NonFunction : IFunction
     {
         public double Compute(double x)
         {

@@ -6,26 +6,25 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
-    public class SigmoidFunction : IFunction
+    class HyperbolicTangensFunction : IFunction
     {
-
         private double alpha;
 
-        public SigmoidFunction(double alpha)
+        internal HyperbolicTangensFunction(double alpha)
         {
             this.alpha = alpha;
         }
 
         public double Compute(double x)
         {
-            double r = (1 / (1 + Math.Exp(-1 * alpha * x)));
-            return r;
+            return (Math.Tanh(alpha * x));
         }
 
         public double ComputeFirstDerivative(double x)
         {
-            return alpha * this.Compute(x) * (1 - this.Compute(x));
+            double t = Math.Tanh(alpha * x);
+            return alpha * (1 - t * t);
         }
-    }
 
+    }
 }

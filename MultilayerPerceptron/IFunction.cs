@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
-    interface IFunction
+    public interface IFunction
     {
         double Compute(double x);
         double ComputeFirstDerivative(double x);

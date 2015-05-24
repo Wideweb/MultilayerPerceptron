@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
-    class NeuralNetworkBuilder
+    public class NeuralNetworkBuilder
     {
         private List<Layer> Layers { get; set; }
 
@@ -22,6 +22,7 @@ namespace MultilayerPerceptron
             Layers.Add(new Layer(neurons[0], nonFunction));
             for(var i = 1; i < neurons.Length; i++)
             {
+                if(neurons[i] != 0)
                 Layers.Add(new Layer(neurons[i], sigmoid));
             }
         }

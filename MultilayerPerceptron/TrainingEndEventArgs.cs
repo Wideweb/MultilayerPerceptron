@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
-    public interface IProximityMeasure
+    public class TrainingEndEventArgs : EventArgs
     {
-        double Compute(double[] x, double[] y);
-        double ComputePartialDerivative(double[] x, double[] y, int Index);
+        public List<INeuron> neurons { get; set; }
     }
 }
