@@ -42,11 +42,14 @@
     <Compile Include="BackPropagationAlgorithm.cs" />
     <Compile Include="HyperbolicTangensFunction.cs" />
     <Compile Include="IFunction.cs" />
+    <Compile Include="ILayer.cs" />
+    <Compile Include="ILink.cs" />
     <Compile Include="INeuralNetwork.cs" />
     <Compile Include="INeuron.cs" />
     <Compile Include="ITrainingAlgorithm.cs" />
     <Compile Include="Layer.cs" />
     <Compile Include="LayersConnector.cs" />
+    <Compile Include="LearningAlgorithmConfig.cs" />
     <Compile Include="LeastSquareMethod.cs" />
     <Compile Include="Link.cs" />
     <Compile Include="MultilayerNeuralNetwork.cs" />

@@ -6,22 +6,23 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
+    [Serializable]
     public class LeastSquareMethod : IProximityMeasure
     {
-        public double Compute(double[] v1, double[] v2)
+        public double Compute(double[] d, double[] y)
         {
             double E = 0;
-            for(var i = 0; i < v1.Length; i++)
+            for(var i = 0; i < d.Length; i++)
             {
-                E += (v1[i] - v2[i]) * (v1[i] - v2[i]);
+                E += (d[i] - y[i]) * (d[i] - y[i]);
             }
 
             return E * 0.5;
         }
 
-        public double ComputePartialDerivative(double[] v1, double[] v2, int Index)
+        public double ComputePartialDerivative(double[] d, double[] y, int Index)
         {
-            return v2[Index] - v1[Index];
+            return y[Index] - d[Index];
         }
     }
 }

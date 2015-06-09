@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
+    [Serializable]
     public class TrainingEventArgs : EventArgs
     {
         public double E { get; set; }

@@ -6,40 +6,41 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
+    [Serializable]
     public class BackPropagationAlgorithm : ITrainingAlgorithm
     {
-        private IProximityMeasure proximityMeasure;
-        private double trainingSpeed;
-        private double alpha;
+        public LearningAlgorithmConfig Config { get; set; }
 
         public event EventHandler<TrainingEventArgs> TrainingEvent;
 
-        public BackPropagationAlgorithm(IProximityMeasure pm, double trainingSpeed, double alpha)
+        public BackPropagationAlgorithm(LearningAlgorithmConfig config)
         {
-            proximityMeasure = pm;
-            this.trainingSpeed = trainingSpeed;
-            this.alpha = alpha;
-
+            this.Config = config;
         }
 
-        public void Train(MultilayerNeuralNetwork neuralNetwork, List<TrainingSample> trainingSamples)
+        public void Train(INeuralNetwork neuralNetwork, List<TrainingSample> trainingSamples)
         {
             double[] output;
-            foreach(var sample in trainingSamples)
+
+            for (var i = 0; i < Config.Epoches; i++)
             {
-                output = neuralNetwork.ComputeOutput(sample.Sample);
 
-                if(TrainingEvent != null)
-                TrainingEvent(this, new TrainingEventArgs{
-                    E = proximityMeasure.Compute(sample.Answer, output)
-                    //E = output[0]
-                });
+                foreach (var sample in trainingSamples)
+                {
+                    output = neuralNetwork.ComputeOutput(sample.Sample);
 
-                SpreadErrorSignals(neuralNetwork, sample.Answer);
+                    if (TrainingEvent != null)
+                        TrainingEvent(this, new TrainingEventArgs
+                        {
+                            E = Config.ErrorFunction.Compute(sample.Answer, output)
+                        });
+
+                    SpreadErrorSignals(neuralNetwork, sample.Answer);
+                }
             }
         }
 
-        void SpreadErrorSignals(MultilayerNeuralNetwork neuralNetwork, double[] answer)
+        void SpreadErrorSignals(INeuralNetwork neuralNetwork, double[] answer)
         {
             int length = neuralNetwork.Layers.Count;
             List<Layer> layers = neuralNetwork.Layers;
@@ -52,7 +53,7 @@ namespace MultilayerPerceptron
             CorrectWeights(neuralNetwork);
         }
 
-        void CorrectWeights(MultilayerNeuralNetwork neuralNetwork)
+        void CorrectWeights(INeuralNetwork neuralNetwork)
         {
             int lenght = neuralNetwork.Layers.Count;
             List<Layer> layers = neuralNetwork.Layers;
@@ -63,9 +64,9 @@ namespace MultilayerPerceptron
                 {
                     foreach(var incomingLink in neuron.IncomingLinks)
                     {
-                        incomingLink.dw = incomingLink.dw * alpha + (1 - alpha) * neuron.dEdS
-                            * incomingLink.Neuron.OUT;
-                        incomingLink.Weight -= incomingLink.dw * trainingSpeed;
+                        incomingLink.dw = incomingLink.dw * Config.InertiaMoment + neuron.dEdS
+                            * incomingLink.Neuron.OUT * Config.TrainingSpeed;
+                        incomingLink.Weight -= incomingLink.dw;
 
                         if (incomingLink.Weight == double.NaN) throw new Exception("Backprop: Nan weight");
                     }
@@ -83,7 +84,7 @@ namespace MultilayerPerceptron
                 function = neuron.ActivationFunction;
 
                 neuron.dEdS = 
-                    proximityMeasure.ComputePartialDerivative(answer, layer.LastOutput, i)
+                    Config.ErrorFunction.ComputePartialDerivative(answer, layer.LastOutput, i)
                     * function.ComputeFirstDerivative(neuron.LastNET);
                     
             }
@@ -99,14 +100,14 @@ namespace MultilayerPerceptron
                 function = neuron.ActivationFunction;
 
                 var d = function.ComputeFirstDerivative(neuron.LastNET);
-                var de = dEdS_forInnerNeuron(neuron);
+                var e = InnerNeuronError(neuron);
 
-                neuron.dEdS = d * de;
+                neuron.dEdS = d * e;
 
             }
         }
 
-        double dEdS_forInnerNeuron(INeuron neuron)
+        double InnerNeuronError(INeuron neuron)
         {
             double result = 0;
             foreach(var outputLink in neuron.OutgoingLinks)

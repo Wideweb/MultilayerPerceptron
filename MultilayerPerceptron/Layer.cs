@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
-    public class Layer
+    [Serializable]
+    public class Layer : ILayer
     {
         public double[] LastOutput { get; set; }
         public int InputDimension { get; set; }

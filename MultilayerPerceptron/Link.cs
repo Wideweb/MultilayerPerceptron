@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
-    public class Link
+    [Serializable]
+    public class Link : ILink
     {
         public INeuron Neuron { get; set; }
         public double Weight { get; set; }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
+    [Serializable]
     public class TrainingSample
     {
         public double[] Sample { get; set; }
@@ -14,8 +15,9 @@ namespace MultilayerPerceptron
 
     public interface ITrainingAlgorithm
     {
+        LearningAlgorithmConfig Config { get; set; }
         event EventHandler<TrainingEventArgs> TrainingEvent;
 
-        void Train(MultilayerNeuralNetwork neuralNetwork, List<TrainingSample> trainingSamples);
+        void Train(INeuralNetwork neuralNetwork, List<TrainingSample> trainingSamples);
     }
 }

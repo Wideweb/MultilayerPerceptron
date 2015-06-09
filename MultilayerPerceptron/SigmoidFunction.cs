@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MultilayerPerceptron
 {
+    [Serializable]
     public class SigmoidFunction : IFunction
     {
 
